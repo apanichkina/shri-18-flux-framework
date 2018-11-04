@@ -18,11 +18,10 @@ var StateSingletonClass = (function () {
         }
         StateSingletonClass.instance = this;
     }
-    StateSingletonClass.prototype.emitChangedEvent = function () {
+    StateSingletonClass.prototype.emitChangedEvent = function (prevStore) {
         this.listeners.forEach(function (clb) {
-            clb.render();
+            clb(prevStore);
         });
-        console.log('changed');
     };
     StateSingletonClass.getInstance = function () {
         return StateSingletonClass.instance;
@@ -38,12 +37,12 @@ var StateSingletonClass = (function () {
     };
     StateSingletonClass.prototype.dispatch = function (action) {
         var _this = this;
-        console.log('get store');
+        var prevStore = __assign({}, this.store);
         Object.keys(this.reducers).forEach(function (key) {
             console.log(key);
             _this.store[key] = _this.reducers[key](_this.store[key], action);
         });
-        this.emitChangedEvent();
+        this.emitChangedEvent(prevStore);
         return this.store;
     };
     StateSingletonClass.prototype.addListener = function (listener) {

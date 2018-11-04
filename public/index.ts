@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   store.addReducers({
     name: (store: string = 'some body', action: INameAction): string => {
       switch (action.type) {
-        case 'nevPerson':
+        case 'newPerson':
           return action.payload.name;
         default:
           return store;
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     age: (store: number = 0, action: IAction): number => {
       switch (action.type) {
-        case 'nevPerson':
+        case 'newPerson':
           return 22;
         default:
           return store;
@@ -27,22 +27,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
   console.log('class initial: ', store.getStore());
 
-  const action = createAction('nevPerson', {name: 'Oleg'});
+  const actionOleg = createAction('newPerson', {name: 'Oleg'});
+  const actionAnna = createAction('newPerson', {name: 'Anna'});
 
   const target = document.getElementById('root');
   if (target) {
-    const render = () => {
+    const render = (prev?: any) => {
       console.log('render');
       const state = store.getStore();
-      target.innerText = state.name + state.age;
+      if (!prev || prev.age !== state.age) {
+        target.innerText = state.name + state.age;
+      }
     };
     render();
 
-    store.addListener({render});
+    store.addListener(render);
     setTimeout(() => {
       console.log('timeout');
-      store.dispatch(action);
+      store.dispatch(actionOleg);
     }, 3000);
+
+    setTimeout(() => {
+      console.log('timeout');
+      store.dispatch(actionAnna);
+    }, 4000);
   }
 
 });

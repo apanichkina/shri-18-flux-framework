@@ -1,7 +1,5 @@
 import { IAction, IActionWithPayload } from './Action';
-export interface IRenderable {
-    render: () => void;
-}
+export declare type TRenderable = (prevStore?: IDictionary<any>) => void;
 export interface IStore {
     [key: string]: any;
 }
@@ -23,6 +21,6 @@ export declare class StateSingletonClass {
     addReducers(reducers: IReducers): void;
     getStore(): IDictionary<any>;
     dispatch<T>(action: IAction | IActionWithPayload<T>): IDictionary<any>;
-    addListener(listener: IRenderable): void;
+    addListener(listener: TRenderable): void;
 }
 export declare function dispatch<T>(evt: EventTarget, action: IAction | IActionWithPayload<T>): void;

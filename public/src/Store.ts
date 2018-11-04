@@ -1,8 +1,6 @@
 import {IAction, IActionWithPayload} from './Action';
 
-export interface IRenderable {
-  render: () => void;
-}
+export type TRenderable = (prevStore?: IDictionary<any>) => void;
 
 export interface IStore {
   [key: string]: any;
@@ -26,11 +24,10 @@ export class StateSingletonClass {
 
   private listeners: any[] = [];
 
-  private emitChangedEvent() {
-    this.listeners.forEach((clb: IRenderable) => {
-      clb.render();
+  private emitChangedEvent(prevStore: IDictionary<any>) {
+    this.listeners.forEach((clb: TRenderable) => {
+      clb(prevStore);
     });
-    console.log('changed');
   }
 
   constructor() {
@@ -57,18 +54,18 @@ export class StateSingletonClass {
   }
 
   public dispatch<T>(action: IAction | IActionWithPayload<T>) {
-    console.log('get store');
+    const prevStore = {...this.store};
     Object.keys(this.reducers).forEach((key) => {
       console.log(key);
       this.store[key] = this.reducers[key](this.store[key], action);
     });
 
-    this.emitChangedEvent();
+    this.emitChangedEvent(prevStore);
 
     return this.store;
   }
 
-  public addListener(listener: IRenderable) {
+  public addListener(listener: TRenderable) {
     this.listeners.push(listener);
   }
 
