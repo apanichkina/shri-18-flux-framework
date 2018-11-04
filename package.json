@@ -1,0 +1,33 @@
+{
+  "name": "shri-18-flux-framework",
+  "version": "1.0.0",
+  "description": "simple framework with flux data flow",
+  "main": "index.js",
+  "scripts": {
+    "watch": "webpack --watch",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apanichkina/shri-18-flux-framework.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/apanichkina/shri-18-flux-framework/issues"
+  },
+  "homepage": "https://github.com/apanichkina/shri-18-flux-framework#readme",
+  "devDependencies": {
+    "@babel/core": "^7.1.2",
+    "@babel/preset-env": "^7.1.0",
+    "awesome-typescript-loader": "^5.2.1",
+    "babel-loader": "^8.0.4",
+    "ts-loader": "^5.3.0",
+    "tslint": "^5.11.0",
+    "tslint-loader": "^3.5.4",
+    "typescript": "^3.1.6",
+    "webpack": "^4.24.0",
+    "webpack-cli": "^3.1.2"
+  }
+}
