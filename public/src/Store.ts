@@ -1,30 +1,28 @@
-import {IAction, IActionWithPayload} from './Action';
+import {IActionWithPayload, IAction} from './Action';
 
-export type TRenderable = (prevStore?: IDictionary<any>) => void;
+export type Reducer<S> = (state: S, action: IAction | IActionWithPayload) => S;
+
+export interface IReducersMapObject {
+  [key: string]: Reducer<any>;
+}
 
 export interface IStore {
   [key: string]: any;
 }
 
-export interface IReducers {
-  [key: string]: <T, P>(store: T | undefined, action: IAction | IActionWithPayload<P>) => T;
-}
-
-export interface IDictionary<T> {
-  [key: string]: T;
-}
+export type TRenderable = (prevStore?: IStore) => void;
 
 export class StateSingletonClass {
 
   private static instance: StateSingletonClass = new StateSingletonClass();
 
-  private reducers: IDictionary<any> = {};
+  private reducers: IReducersMapObject = {};
 
-  private store: IDictionary<any> = {};
+  private store: IStore = {};
 
   private listeners: any[] = [];
 
-  private emitChangedEvent(prevStore: IDictionary<any>) {
+  private emitChangedEvent(prevStore: IStore) {
     this.listeners.forEach((clb: TRenderable) => {
       clb(prevStore);
     });
@@ -45,7 +43,7 @@ export class StateSingletonClass {
     this.store = data;
   }
 
-  public addReducers(reducers: IReducers): void {
+  public addReducers(reducers: IReducersMapObject): void {
     this.reducers = {...this.reducers, ...reducers};
   }
 
@@ -53,10 +51,9 @@ export class StateSingletonClass {
     return this.store;
   }
 
-  public dispatch<T>(action: IAction | IActionWithPayload<T>) {
+  public dispatch<T extends IAction>(action: T) {
     const prevStore = {...this.store};
     Object.keys(this.reducers).forEach((key) => {
-      console.log(key);
       this.store[key] = this.reducers[key](this.store[key], action);
     });
 
@@ -69,10 +66,4 @@ export class StateSingletonClass {
     this.listeners.push(listener);
   }
 
-}
-
-export function dispatch<T>(evt: EventTarget, action: IAction | IActionWithPayload<T>) {
-  const data = (action as IActionWithPayload<T>).payload || {};
-  const event = new CustomEvent(action.type, data);
-  evt.dispatchEvent(event);
 }

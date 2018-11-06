@@ -2,11 +2,11 @@ export interface IAction {
   type: string;
 }
 
-export interface IActionWithPayload<T> extends IAction {
-  payload: T;
+export interface IActionWithPayload extends IAction {
+  payload: any;
 }
 
-export function createAction<T>(type: string, payload?: T): IAction | IActionWithPayload<T> {
+export function createAction(type: string, payload?: any): IAction | IActionWithPayload {
   let result;
 
   if (payload) {

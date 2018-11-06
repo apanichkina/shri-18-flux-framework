@@ -1,14 +1,12 @@
-import { IAction, IActionWithPayload } from './Action';
-export declare type TRenderable = (prevStore?: IDictionary<any>) => void;
+import { IActionWithPayload, IAction } from './Action';
+export declare type Reducer<S> = (state: S, action: IAction | IActionWithPayload) => S;
+export interface IReducersMapObject {
+    [key: string]: Reducer<any>;
+}
 export interface IStore {
     [key: string]: any;
 }
-export interface IReducers {
-    [key: string]: <T, P>(store: T | undefined, action: IAction | IActionWithPayload<P>) => T;
-}
-export interface IDictionary<T> {
-    [key: string]: T;
-}
+export declare type TRenderable = (prevStore?: IStore) => void;
 export declare class StateSingletonClass {
     private static instance;
     private reducers;
@@ -18,9 +16,8 @@ export declare class StateSingletonClass {
     constructor();
     static getInstance(): StateSingletonClass;
     setInitialState(data: IStore): void;
-    addReducers(reducers: IReducers): void;
-    getStore(): IDictionary<any>;
-    dispatch<T>(action: IAction | IActionWithPayload<T>): IDictionary<any>;
+    addReducers(reducers: IReducersMapObject): void;
+    getStore(): IStore;
+    dispatch<T extends IAction>(action: T): IStore;
     addListener(listener: TRenderable): void;
 }
-export declare function dispatch<T>(evt: EventTarget, action: IAction | IActionWithPayload<T>): void;

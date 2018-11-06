@@ -1,7 +1,11 @@
-import {createAction, IActionWithPayload, IAction} from '../lib/public/src/Action';
+import {createAction, IAction} from '../lib/public/src/Action';
 import {StateSingletonClass} from '../lib/public/src/Store';
 
-interface INameAction extends IActionWithPayload<{name: string}> {}
+interface INameAction extends IAction {
+  payload: {
+    name: string;
+  };
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const store = StateSingletonClass.getInstance();
@@ -10,12 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
     name: (store: string = 'some body', action: INameAction): string => {
       switch (action.type) {
         case 'newPerson':
-          return action.payload.name;
+          return (action as INameAction).payload.name;
         default:
           return store;
       }
     },
-    age: (store: number = 0, action: IAction): number => {
+    age: (store: number, action: IAction): number => {
       switch (action.type) {
         case 'newPerson':
           return 22;
