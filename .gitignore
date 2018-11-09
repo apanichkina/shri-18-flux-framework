@@ -2,4 +2,5 @@
 .idea/
 .awcache
 node_modules
-
+.dist/
+.lib/public/index.d.ts
