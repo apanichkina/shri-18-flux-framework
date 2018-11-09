@@ -1,6 +1,6 @@
-import {IActionWithPayload, IAction} from './Action';
+import {IAction} from './Action';
 
-export type Reducer<S> = (state: S, action: IAction | IActionWithPayload) => S;
+export type Reducer<S> = <T extends IAction>(state: S, action: T) => S;
 
 export interface IReducersMapObject {
   [key: string]: Reducer<any>;

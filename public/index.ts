@@ -37,22 +37,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const target = document.getElementById('root');
   if (target) {
     const render = (prev?: any) => {
-      console.log('render');
       const state = store.getStore();
       if (!prev || prev.age !== state.age) {
-        target.innerText = state.name + state.age;
+        target.innerText = state.name + ' ' + state.age;
       }
     };
     render();
 
     store.addListener(render);
     setTimeout(() => {
-      console.log('timeout');
       store.dispatch(actionOleg);
     }, 3000);
 
     setTimeout(() => {
-      console.log('timeout');
       store.dispatch(actionAnna);
     }, 4000);
   }
