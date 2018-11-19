@@ -1,5 +1,7 @@
 import {createAction, IAction} from '../lib/public/src/Action';
-import {StateSingletonClass} from '../lib/public/src/Store';
+import {Store} from '../lib/public/src/Store';
+import {Dispatcher} from '../lib/public/src/Dispatcher';
+import {EventEmitter} from '../lib/public/src/EventEmitter';
 
 interface INameAction extends IAction {
   payload: {
@@ -8,49 +10,51 @@ interface INameAction extends IAction {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const store = StateSingletonClass.getInstance();
-  store.setInitialState({name: 'Anna'});
-  store.addReducers({
-    name: (store: string = 'some body', action: INameAction): string => {
-      switch (action.type) {
-        case 'newPerson':
-          return (action as INameAction).payload.name;
-        default:
-          return store;
-      }
-    },
-    age: (store: number, action: IAction): number => {
-      switch (action.type) {
-        case 'newPerson':
-          return 22;
-        default:
-          return store;
-      }
-    },
-  });
+  const eventEmitter = new EventEmitter();
+  const dispatcher = Dispatcher.getInstance();
+  const initialStore = {name: 'Anna'};
+  const rootReducer = (store, action) => {
+    switch (action.type) {
+      case 'newPerson':
+        return {
+          ...store,
+          name: (action as INameAction).payload.name,
+          age: 22,
+        };
+      default:
+        return store;
+    }
+  };
 
-  console.log('class initial: ', store.getStore());
+  const store = new Store(initialStore, rootReducer, dispatcher, eventEmitter);
+
+  console.log('class initial: ', store.getStore('name'));
 
   const actionOleg = createAction('newPerson', {name: 'Oleg'});
   const actionAnna = createAction('newPerson', {name: 'Anna'});
 
   const target = document.getElementById('root');
-  if (target) {
-    const render = (prev?: any) => {
-      const state = store.getStore();
-      if (!prev || prev.age !== state.age) {
-        target.innerText = state.name + ' ' + state.age;
-      }
-    };
-    render();
 
-    store.addListener(render);
+  if (target) {
+    const render = (name, age) => {
+      target.innerText = name + ' ' + age;
+    };
+    eventEmitter.on('storeUpdate', (data) => {
+      switch (data.type) {
+        case 'newPerson':
+         render(data.store.name, data.store.age);
+         break;
+        default:
+          break;
+      }
+    });
+
     setTimeout(() => {
-      store.dispatch(actionOleg);
+      dispatcher.dispatch(actionOleg);
     }, 3000);
 
     setTimeout(() => {
-      store.dispatch(actionAnna);
+      dispatcher.dispatch(actionAnna);
     }, 4000);
   }
 

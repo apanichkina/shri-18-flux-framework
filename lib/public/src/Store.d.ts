@@ -1,23 +1,16 @@
 import { IAction, IActionWithPayload } from './Action';
+import { Dispatcher } from './Dispatcher';
+import { EventEmitter } from './EventEmitter';
 export declare type Reducer<S> = (state: S, action: IAction | IActionWithPayload) => S;
-export interface IReducersMapObject {
-    [key: string]: Reducer<any>;
-}
 export interface IStore {
     [key: string]: any;
 }
-export declare type TRenderable = (prevStore?: IStore) => void;
-export declare class StateSingletonClass {
-    private static instance;
+export declare class Store {
     private reducers;
     private store;
-    private listeners;
-    private emitChangedEvent;
-    constructor();
-    static getInstance(): StateSingletonClass;
-    setInitialState(data: IStore): void;
-    addReducers(reducers: IReducersMapObject): void;
-    getStore(): IStore;
-    dispatch<T extends IAction>(action: T): IStore;
-    addListener(listener: TRenderable): void;
+    constructor(inital: IStore, rootReducer: Reducer<IStore>, dispatcher: Dispatcher, emitter: EventEmitter);
+    private setInitialStore;
+    private setReducers;
+    getStore(field: any): any;
+    private updateStore;
 }

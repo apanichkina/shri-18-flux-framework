@@ -1,69 +1,49 @@
 import {IAction, IActionWithPayload} from './Action';
+import {Dispatcher} from './Dispatcher';
+import {EventEmitter} from './EventEmitter';
 
 export type Reducer<S> = (state: S, action: IAction | IActionWithPayload) => S;
-
-export interface IReducersMapObject {
-  [key: string]: Reducer<any>;
-}
 
 export interface IStore {
   [key: string]: any;
 }
 
-export type TRenderable = (prevStore?: IStore) => void;
+export class Store {
 
-export class StateSingletonClass {
-
-  private static instance: StateSingletonClass = new StateSingletonClass();
-
-  private reducers: IReducersMapObject = {};
+  private reducers: Reducer<IStore>;
 
   private store: IStore = {};
 
-  private listeners: any[] = [];
+  constructor(inital: IStore, rootReducer: Reducer<IStore>, dispatcher: Dispatcher, emitter: EventEmitter) {
+    this.setInitialStore(inital);
+    this.setReducers(rootReducer);
 
-  private emitChangedEvent(prevStore: IStore) {
-    this.listeners.forEach((clb: TRenderable) => {
-      clb(prevStore);
+    dispatcher.add((action) => {
+      this.updateStore(action);
+      emitter.emit(
+        'storeUpdate',
+        {type: action.type, store: {...this.store}}, // TODO use deep copy
+        );
     });
+
   }
 
-  constructor() {
-    if (StateSingletonClass.instance) {
-      throw new Error('Error: Instantiation failed: Use StateSingletonClass.getInstance() instead of new.');
-    }
-    StateSingletonClass.instance = this;
-  }
-
-  public static getInstance(): StateSingletonClass {
-    return StateSingletonClass.instance;
-  }
-
-  public setInitialState(data: IStore): void {
+  private setInitialStore(data: IStore): void {
     this.store = data;
   }
 
-  public addReducers(reducers: IReducersMapObject): void {
-    this.reducers = {...this.reducers, ...reducers};
+  private setReducers(reducer: Reducer<IStore>): void {
+    this.reducers = reducer;
   }
 
-  public getStore() {
-    return this.store;
+  public getStore(field) {
+    const value = this.store[field]; // TODO use deep copy
+
+    return value;
   }
 
-  public dispatch<T extends IAction>(action: T) {
-    const prevStore = {...this.store};
-    Object.keys(this.reducers).forEach((key) => {
-      this.store[key] = this.reducers[key](this.store[key], action);
-    });
-
-    this.emitChangedEvent(prevStore);
-
-    return this.store;
-  }
-
-  public addListener(listener: TRenderable) {
-    this.listeners.push(listener);
+  private updateStore<T extends IAction>(action: T) {
+    this.store = this.reducers(this.store, action);
   }
 
 }
