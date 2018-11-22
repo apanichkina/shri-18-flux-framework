@@ -15,7 +15,18 @@ simple framework with flux data flow
 
 **API**
 ___
+##### EventEmitter:
 
+1.Подписка на событие возвращает метод для отписки
+ ```javascript
+import {EventEmitter} from 'shri-18-flux-framework/lib/public/src/EventEmitter';
+const eventEmitter = new EventEmitter();
+const unsubscribe = eventEmitter.on('storeUpdate', clb);
+ ```
+2.Триггер событий
+  ```javascript
+eventEmitter.emmit('storeUpdate', data);
+  ```
 ##### Есть два вида action: 
 
 1.С нагрузкой
@@ -34,46 +45,59 @@ ___
 }
 ```
 
-##### Есть стор, который один на проект
+##### Есть стор, которых может быть много на одно приложение
 
-1.Создаем
+1.Импортим
 ```javascript
-import {StateSingletonClass} from 'shri-18-flux-framework/lib/public/src/Store';
-const store = StateSingletonClass.getInstance();
+import {Store} from 'shri-18-flux-framework/lib/public/src/Store';
 ```
-2.Добавляем правила обновления стора
+2.Объявляем правила обновления стора
 ```javascript
-store.addReducers({
-    age: (store: number, action: IAction): number => {
-      switch (action.type) {
-        case 'SOME_ACTION':
-          return 22;
-        default:
-          return store;
-      }
-    },
-  });
+const rootReducer = (store: IStore, action: IPageAction) => {
+    switch (action.type) {
+      case 'ROUTE':
+        return {
+          ...store,
+          page: action.payload.page,
+        };
+      default:
+        return store;
+    }
+};
 ```
-3.Создаем action
+3.Объявляем начальное состояние стора
+```javascript
+const initialStore = {page: 'events'};
+```
+4.Заводим стор
+```javascript
+const store = new Store(initialStore, rootReducer, dispatcher, eventEmitter);
+```
+
+##### Связывем логику приложения со стором
+
+1.Создаем action
 ```javascript
 import {createAction, IAction} from 'shri-18-flux-framework/lib/public/src/Action';
 const action = createAction('SOME_ACTION');
 ```
-4.Стор предоставляет метод dispatch, который вызывает все редьюсеры:
+2.Инициируем изменение стора
 ```javascript
-store.dispatch(action);
+dispatcher.dispatch(action);
 ```
-5.Получить текущее состояние стора:
+3.Получить текущее состояние поля из стора:
 ```javascript
-const values = store.getStore()
+store.getStore('fieldName')
 ```
-6.Подписаться на изменение стора (например перерендерить страницу):
+4.Подписаться на изменение стора (например перерендерить страницу):
 ```javascript
-const render = (prevState) => {
-  const state = store.getStore();
-  if (!prevState || prevState.age !== state.age) {
-    target.innerText = state.age;
-  }
+const eventsManager = (data: any) => {
+      const { type, store: {page} } = data;
+
+      if (page === 'events') {
+        renderEventsPage();
+      }
 };
-store.addListener(render);
+eventEmitter.on('storeUpdate', eventsManager)
+
 ```
